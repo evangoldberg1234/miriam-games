@@ -185,7 +185,7 @@
   // State
   // ---------------------------------------------------------------------------------------------
   var isOpen = false;
-  var mode = "idle"; // idle | checking | sleeping | locked | chat
+  var mode = "idle"; // idle | checking | sleeping | nocode | locked | chat
   var messages = []; // {id, direction, text, status, created_at, local?}
   var lastId = 0;
   var pollTimer = null;
@@ -200,7 +200,7 @@
     if (open) {
       unread = 0;
       badge.hidden = true;
-      if (mode === "idle" || mode === "sleeping") start();
+      if (mode === "idle" || mode === "sleeping" || mode === "nocode") start();
       else if (mode === "chat") { renderChat(); schedulePoll(0); focusInput(); }
     } else {
       schedulePoll();
@@ -217,7 +217,8 @@
       return poll(true);
     }
     api("kid-chat-poll", null, "GET").then(function (r) {
-      if (r.ok && r.configured) showLocked();
+      if (r.ok && r.configured && r.passcode_set === false) showAskGrownUp();
+      else if (r.ok && r.configured) showLocked();
       else showSleeping();
     });
   }
@@ -246,6 +247,22 @@
     box.appendChild(el("div", "kc-big-emoji kc-float", "😴"));
     box.appendChild(el("p", "kc-center-title", "Chat is sleeping"));
     box.appendChild(el("p", "kc-center-text", cfg.botName + " can't chat right now. Try again later!"));
+    box.appendChild(button("kc-btn", "🔄 Try again", null, function () { start(); }));
+    body.appendChild(box);
+  }
+
+  // No family code has been set up for this kid yet (the server answers "no_passcode_yet").
+  function showAskGrownUp() {
+    mode = "nocode";
+    stopPoll();
+    token = null;
+    save("token", null);
+    headSub.textContent = "Almost ready";
+    clearBody();
+    var box = el("div", "kc-center");
+    box.appendChild(el("div", "kc-big-emoji kc-float", "🔑"));
+    box.appendChild(el("p", "kc-center-title", "Ask a grown-up for the code"));
+    box.appendChild(el("p", "kc-center-text", cfg.botName + " is almost ready! A grown-up needs to set up the secret family code first."));
     box.appendChild(button("kc-btn", "🔄 Try again", null, function () { start(); }));
     body.appendChild(box);
   }
@@ -283,6 +300,7 @@
         code = "";
         if (dots) drawDots();
         if (input) input.value = "";
+        if (r.error === "no_passcode_yet") return showAskGrownUp();
         if (r.error === "wrong_passcode") err.textContent = "Oops! That's not it. Try again.";
         else if (r.error === "too_many_tries") err.textContent = "Too many tries. Ask a grown-up, or wait a few minutes.";
         else if (r.error === "not_configured" || r.status === 0 || r.status >= 500) return showSleeping();
@@ -503,6 +521,7 @@
 
   function handleError(r, text) {
     if (text && textarea && !textarea.value) { textarea.value = text; onType(); }
+    if (r.error === "no_passcode_yet") return showAskGrownUp();
     if (r.status === 401) return showLocked("Please type the secret code again.");
     if (r.error === "not_configured") return showSleeping();
     if (r.error === "slow_down") return showToast("Whoa, slow down! 🐢 Wait a little bit, then try again.");
@@ -524,6 +543,9 @@
         if (isOpen) drawMessages();
         else if (added && !first) { unread += added; badge.textContent = String(unread); badge.hidden = false; }
         if (first && isOpen) focusInput();
+      } else if (r.error === "no_passcode_yet") {
+        if (isOpen) showAskGrownUp(); else { mode = "idle"; token = null; save("token", null); }
+        return;
       } else if (r.status === 401) {
         if (isOpen) showLocked("Please type the secret code again."); else { mode = "idle"; token = null; save("token", null); }
         return;
