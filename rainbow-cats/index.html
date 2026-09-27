@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+  <meta name="format-detection" content="telephone=no">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Rainbow Cats">
+  <meta name="theme-color" content="#8a3ffc">
+  <title>Rainbow Cats</title>
+  <link rel="icon" href="../apple-touch-icon.png">
+  <link rel="apple-touch-icon" href="../apple-touch-icon.png">
+  <link rel="stylesheet" href="../brain-break/brain-break.css">
+  <link rel="stylesheet" href="game.css">
+</head>
+<body>
+  <div class="sky" aria-hidden="true">
+    <div class="cloud cloud-a"></div>
+    <div class="cloud cloud-b"></div>
+  </div>
+  <main class="wrap">
+    <header class="top">
+      <a class="back" href="../index.html">← Arcade</a>
+      <h1><span class="spark" aria-hidden="true">🐱 </span><span class="name">Rainbow Cats</span></h1>
+      <span></span>
+    </header>
+    <section class="hud" aria-label="Score, level, and cat food">
+      <div class="stat score">
+        <span class="label">Score</span>
+        <strong id="score">0</strong>
+      </div>
+      <div class="stat level">
+        <span class="label">Level</span>
+        <strong id="level">1</strong>
+      </div>
+      <div class="stat cans">
+        <span class="label">Cat food</span>
+        <strong id="cans-left">5</strong>
+        <div id="cans" class="can-row" role="img" aria-label="5 of 5 cat food cans left"></div>
+      </div>
+    </section>
+    <p id="found" class="found">Cats found: 0 / 5</p>
+    <p id="message" class="message info" role="status">Find all five cats!</p>
+    <div id="grid" class="grid" role="group" aria-label="Squares"></div>
+  </main>
+  <script src="../brain-break/brain-break.js"></script>
+  <script src="game.js"></script>
+</body>
+</html>

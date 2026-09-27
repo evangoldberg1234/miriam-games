@@ -12,4 +12,12 @@
 // Each game lives in its own folder and has an index.html.
 // Keep href relative so the site works on GitHub Pages under /miriam-games/.
 // While this list is empty, the home page shows a "Games coming soon!" card.
-const MIRIAM_GAMES = [];
+const MIRIAM_GAMES = [
+  {
+    title: "Rainbow Cats",
+    emoji: "🐱",
+    about: "Find the rainbow cats!",
+    href: "rainbow-cats/index.html",
+    color: "violet"
+  }
+];
