@@ -1,0 +1,17 @@
+{
+  "name": "Miriam's Rainbow Arcade",
+  "short_name": "Rainbow Arcade",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#fff7fb",
+  "theme_color": "#8a3ffc",
+  "icons": [
+    {
+      "src": "apple-touch-icon.png",
+      "sizes": "180x180",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ]
+}

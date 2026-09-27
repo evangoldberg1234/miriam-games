@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+  <meta name="format-detection" content="telephone=no">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Rainbow Arcade">
+  <meta name="theme-color" content="#8a3ffc">
+  <title>Miriam's Rainbow Arcade</title>
+  <link rel="icon" href="apple-touch-icon.png">
+  <link rel="apple-touch-icon" href="apple-touch-icon.png">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="stylesheet" href="css/site.css">
+</head>
+<body class="home">
+  <div class="sky" aria-hidden="true">
+    <div class="rainbow">
+      <span class="band b1"></span>
+      <span class="band b2"></span>
+      <span class="band b3"></span>
+      <span class="band b4"></span>
+      <span class="band b5"></span>
+      <span class="band b6"></span>
+      <span class="band b7"></span>
+    </div>
+    <div class="cloud cloud-a"></div>
+    <div class="cloud cloud-b"></div>
+    <div class="cloud cloud-c"></div>
+  </div>
+  <main class="wrap">
+    <header class="hero">
+      <p class="hello">👋 Hi, Miriam!</p>
+      <h1 class="title" aria-label="Miriam's Rainbow Arcade">
+        <span class="line">
+          <span class="c1">M</span><span class="c2">i</span><span class="c3">r</span><span class="c4">i</span><span class="c5">a</span><span class="c6">m</span><span class="c7">'</span><span class="c1">s</span>
+        </span>
+        <span class="line big">Rainbow Arcade</span>
+      </h1>
+      <p class="tag">🌈 Tap a game to play! 🌈</p>
+    </header>
+    <section id="game-list" class="game-list" aria-label="Games"></section>
+    <ul class="parade" aria-hidden="true">
+      <li>🍓</li>
+      <li>🍊</li>
+      <li>🌻</li>
+      <li>🐸</li>
+      <li>🐳</li>
+      <li>🦄</li>
+      <li>🦋</li>
+      <li>⭐</li>
+    </ul>
+  </main>
+  <footer class="foot">
+    <p>Made with 💜 for Miriam</p>
+    <details class="parent-note">
+      <summary>For parents</summary>
+      <p>Brain Breaks are short learning pauses instead of ads. About every minute and a half of play, and between levels, Miriam or Joyce answers a few questions: math, word problems, English, Russian, and Hebrew words, and the weekly Torah portion. Each child has her own level, saved on this iPad. They can switch players on the break screen.</p>
+      <p>The 💬 bubble lets Miriam chat with Mirlil, her Grok Bot. It asks for the family code once on this iPad, and only Mirlil can answer.</p>
+    </details>
+  </footer>
+  <script src="games.js"></script>
+  <script src="js/home.js"></script>
+  <!-- Chat with Mirlil. It stays asleep until functionsUrl points at the Supabase project's Edge Functions,
+       e.g. "https://abcdefgh.supabase.co/functions/v1". No secrets go here. -->
+  <script>
+    window.KIDS_CHAT = { kid: "miriam", kidName: "Miriam", botName: "Mirlil", botEmoji: "🦄", theme: "rainbow", functionsUrl: "" };
+  </script>
+  <script src="chat/chat.js" defer></script>
+</body>
+</html>
