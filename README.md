@@ -25,7 +25,7 @@ While the list is empty, the home page shows a "Games coming soon!" card.
 
 ## Brain Breaks
 
-Brain Breaks are the shared pause between play: a few questions instead of an ad. The module lives in `brain-break/` and is copied unchanged from `joyce-games` (keep the two copies in sync). Every game should use it, about every 90 seconds of active play and between levels. The home page does not trigger breaks.
+Brain Breaks are a short set of questions at the end of every level, instead of an ad. There is no timer. The module lives in `brain-break/` and is copied unchanged from `joyce-games` (keep the two copies in sync). See `brain-break/README.md` for the full game-author notes. The home page does not trigger breaks.
 
 From a game folder one level down from the site root:
 
@@ -34,21 +34,21 @@ From a game folder one level down from the site root:
 <script src="../brain-break/brain-break.js"></script>
 ```
 
-Then start it when the game starts. `isPaused` should be true on menus, how-to screens, and win screens, so the timer only counts active play. Call `betweenLevels()` after a level is solved and before the next one starts.
+At the end of every level, on a win and on a loss, call `levelEnd` and wait. Go to the next level after a win. Retry the same level after a loss.
 
 ```javascript
-var breaks = JoyceBrainBreaks.attach({
-  isPaused: function () {
-    return howtoOpen || justSolved || screen !== "play";
-  }
+JoyceBrainBreaks.levelEnd({ won: true, level: levelNumber }).then(function () {
+  startNextLevel();
 });
 
-breaks.betweenLevels().then(startNextLevel);
+JoyceBrainBreaks.levelEnd({ won: false, level: levelNumber }).then(function () {
+  retryLevel();
+});
 ```
 
-(The global is named `JoyceBrainBreaks` because the module is shared with Joyce's site; Miriam and Joyce each have their own saved levels and can switch players on the break screen.)
+`won` is `true` when she beat the level and `false` when the level ended in a miss, a life lost, giving up, or a restart. `level` is the 1-based game level she just finished. A higher level nudges that break's questions a little harder; the nudge is not saved. The promise resolves when she taps Keep playing. If a break is already on screen, you get that same promise. Do not start the next level until it resolves. Do not call it when she opens a level, opens a menu, or asks for a hint. Only when the level is actually over.
 
-For testing, add `?bbtest=10` to a game URL for a 10 second timer.
+(The global is named `JoyceBrainBreaks` because the module is shared with Joyce's site. Miriam and Joyce each have their own saved levels for math, word problems, word match, and the weekly Torah portion, and they can switch players on the break screen.)
 
 ```bash
 node brain-break/test.js

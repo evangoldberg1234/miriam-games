@@ -47,6 +47,17 @@
     return level;
   }
 
+  function gameNudge(gameLevel) {
+    gameLevel = Math.round(Number(gameLevel) || 1);
+    if (gameLevel < 1) gameLevel = 1;
+    return Math.min(3, Math.floor((gameLevel - 1) / 2));
+  }
+
+  function effectiveLevel(storedLevel, subject, gameLevel) {
+    var max = MAX[subject] || 1;
+    return clampLevel((Number(storedLevel) || 1) + gameNudge(gameLevel), max);
+  }
+
   function freshSubject(level) {
     return { level: level, streak: 0, missStreak: 0, placed: false, correctCount: 0 };
   }
@@ -671,7 +682,9 @@
     pickParsha: pickParsha,
     subjectsForBreak: subjectsForBreak,
     readingFromHebcalItems: readingFromHebcalItems,
-    clampLevel: clampLevel
+    clampLevel: clampLevel,
+    gameNudge: gameNudge,
+    effectiveLevel: effectiveLevel
   };
 
   if (typeof module !== "undefined" && module.exports) {

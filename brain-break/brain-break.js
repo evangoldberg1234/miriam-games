@@ -1,26 +1,26 @@
-/* Shared Brain Break for any Joyce's Web game.
-   Include this script, then call JoyceBrainBreaks.attach({ isPaused }). */
+/* Shared Brain Break for any game on the site.
+   Include this script, then at the end of a level:
+   JoyceBrainBreaks.levelEnd({ won: true, level: n }).then(continueGame);
+   The promise resolves when the child taps Keep playing.
+   There is no timer. Question difficulty uses the saved subject
+   level plus a small nudge from the game level. */
 (function () {
   var STORAGE_KEY = "joyce-brain-breaks";
-  var SKIP_MS = 15000;
   var waiters = [];
   var booted = false;
+  var session = null;
 
   function whenReady(fn) {
     if (booted) fn();
     else waiters.push(fn);
   }
 
-  function createSession(opts) {
-    var intervalMs = readInterval();
-    var activeMs = 0;
-    var lastTick = Date.now();
+  function createSession() {
     var breakOpen = false;
-    var lastBreakEndedAt = 0;
     var openPromise = null;
     var finishBreak = null;
-    var timerId = 0;
-    var started = false;
+    var gameLevel = 1;
+    var won = false;
     var state = loadState();
     repairKids();
     var liveCache = {};
@@ -45,32 +45,6 @@
       } catch (err) {
         /* Private mode can block storage. The break still works. */
       }
-    }
-
-    function paused() {
-      if (breakOpen || document.hidden) return true;
-      try {
-        return !!(opts && opts.isPaused && opts.isPaused());
-      } catch (err) {
-        return false;
-      }
-    }
-
-    function tick() {
-      var now = Date.now();
-      var delta = now - lastTick;
-      lastTick = now;
-      if (delta < 0) delta = 0;
-      if (delta > 2000) delta = 2000;
-      if (paused()) return;
-      activeMs += delta;
-      if (activeMs >= intervalMs) startBreak();
-    }
-
-    function start() {
-      if (started) return;
-      started = true;
-      timerId = window.setInterval(tick, 250);
     }
 
     function repairKids() {
@@ -116,15 +90,20 @@
         });
     }
 
+    function levelFor(who, subject) {
+      return window.BBEngine.effectiveLevel(who[subject].level, subject, gameLevel);
+    }
+
     function makeQuestion(subject, who, rng, reading) {
-      if (subject === "math") return window.BBEngine.generateMath(who.math.level, rng);
-      if (subject === "words") return window.BBEngine.generateWords(who.words.level, rng);
+      var level = levelFor(who, subject);
+      if (subject === "math") return window.BBEngine.generateMath(level, rng);
+      if (subject === "words") return window.BBEngine.generateWords(level, rng);
       if (subject === "translate") {
-        var pack = window.BBEngine.generateTranslate(who.translate.level, rng, state.dirIndex || 0);
+        var pack = window.BBEngine.generateTranslate(level, rng, state.dirIndex || 0);
         state.dirIndex = pack.nextDirIndex;
         return pack.question;
       }
-      return window.BBEngine.pickParsha(who.parsha.level, rng, reading);
+      return window.BBEngine.pickParsha(level, rng, reading);
     }
 
     function buildQuestions(who) {
@@ -169,8 +148,10 @@
       render();
     }
 
-    function startBreak() {
+    function startBreak(level) {
       if (breakOpen) return openPromise;
+      gameLevel = Math.round(Number(level) || 1);
+      if (gameLevel < 1) gameLevel = 1;
       breakOpen = true;
       questions = [];
       qIndex = 0;
@@ -186,30 +167,26 @@
         save();
       }
       ensureOverlay();
+      overlay.setAttribute("data-outcome", won ? "win" : "loss");
       render();
       return openPromise;
+    }
+
+    function levelEnd(opts) {
+      opts = opts || {};
+      won = !!opts.won;
+      return startBreak(opts.level);
     }
 
     function endBreak() {
       window.clearTimeout(advanceTimer);
       breakOpen = false;
-      lastBreakEndedAt = Date.now();
-      activeMs = 0;
       if (overlay && overlay.parentNode) overlay.parentNode.removeChild(overlay);
       overlay = null;
       var done = finishBreak;
       finishBreak = null;
       openPromise = null;
       if (done) done();
-    }
-
-    function betweenLevels() {
-      if (breakOpen) return openPromise;
-      if (lastBreakEndedAt && Date.now() - lastBreakEndedAt < SKIP_MS) {
-        activeMs = 0;
-        return Promise.resolve();
-      }
-      return startBreak();
     }
 
     function ensureOverlay() {
@@ -349,7 +326,9 @@
         doneTitle.textContent = "Brain break complete!";
         var doneText = document.createElement("p");
         doneText.className = "bb-sub";
-        doneText.textContent = "You worked hard. Back to the game!";
+        doneText.textContent = won
+          ? "You finished the level. Back to the game!"
+          : "Good try. Back to the game!";
         var keep = document.createElement("button");
         keep.type = "button";
         keep.className = "bb-next";
@@ -463,20 +442,8 @@
     }
 
     return {
-      start: start,
-      betweenLevels: betweenLevels
+      levelEnd: levelEnd
     };
-  }
-
-  function readInterval() {
-    try {
-      var raw = new URLSearchParams(window.location.search).get("bbtest");
-      var seconds = Number(raw);
-      if (raw && seconds > 0) return Math.max(1000, seconds * 1000);
-    } catch (err) {
-      /* Keep the normal minute and a half. */
-    }
-    return 90000;
   }
 
   function loadState() {
@@ -524,26 +491,21 @@
   }
 
   window.JoyceBrainBreaks = {
-    attach: function (opts) {
-      var session = null;
-      whenReady(function () {
-        session = createSession(opts || {});
-        session.start();
+    levelEnd: function (opts) {
+      return new Promise(function (resolve) {
+        whenReady(function () {
+          if (!session) {
+            resolve();
+            return;
+          }
+          session.levelEnd(opts).then(resolve, resolve);
+        });
       });
-      return {
-        betweenLevels: function () {
-          return new Promise(function (resolve) {
-            whenReady(function () {
-              session.betweenLevels().then(resolve, resolve);
-            });
-          });
-        }
-      };
     }
   };
 
   loadScripts(["schedule.js", "vocab.js", "parsha.js", "engine.js"], function () {
-    if (!window.BBEngine) return;
+    if (window.BBEngine) session = createSession();
     booted = true;
     var queued = waiters.slice();
     waiters = [];

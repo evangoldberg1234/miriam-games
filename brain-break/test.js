@@ -244,4 +244,31 @@ for (seed = 1; seed <= 30; seed++) {
   }
 }
 
+assert.strictEqual(engine.gameNudge(1), 0);
+assert.strictEqual(engine.gameNudge(2), 0);
+assert.strictEqual(engine.gameNudge(3), 1);
+assert.strictEqual(engine.gameNudge(6), 2);
+assert.strictEqual(engine.gameNudge(7), 3);
+assert.strictEqual(engine.gameNudge(20), 3);
+assert.strictEqual(engine.gameNudge(0), 0);
+
+var joyceMath = engine.freshKid("joyce");
+var storedMath = joyceMath.math.level;
+assert.strictEqual(engine.effectiveLevel(storedMath, "math", 1), storedMath);
+assert.strictEqual(engine.effectiveLevel(storedMath, "math", 7), storedMath + 3);
+assert.strictEqual(joyceMath.math.level, storedMath);
+assert.strictEqual(engine.effectiveLevel(11, "math", 9), engine.MAX.math);
+assert.strictEqual(engine.effectiveLevel(1, "translate", 6), 3);
+var nudged = engine.generateMath(engine.effectiveLevel(4, "math", 7), engine.mulberry32(3));
+assert.strictEqual(nudged.level, 7);
+assert.strictEqual(engine.evalCheck(nudged.check), Number(nudged.answer));
+
+var pageSource = require("fs").readFileSync(require("path").join(__dirname, "brain-break.js"), "utf8");
+assert.ok(pageSource.indexOf("levelEnd") !== -1);
+assert.strictEqual(pageSource.indexOf("bbtest"), -1);
+assert.strictEqual(pageSource.indexOf("setInterval"), -1);
+assert.strictEqual(pageSource.indexOf("betweenLevels"), -1);
+assert.strictEqual(pageSource.indexOf(".attach"), -1);
+assert.strictEqual(pageSource.indexOf("90000"), -1);
+
 console.log("Brain Break checks passed (" + bank.length + " questions, " + schedule.length + " Shabbats, " + vocab.length + " words).");
