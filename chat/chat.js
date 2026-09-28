@@ -26,12 +26,6 @@
  * the balance with KidsChat.stars() / KidsChat.setStars(n), and listen for window "kidschat:stars" events
  * ({detail: {kid, stars}}). Older backends without stars simply show no star counter and no 🎮 button.
  *
- * Making a code: when no passcode is set and a grown-up opened the setup window (kid-chat-poll GET reports
- * passcode_setup_open: true), the bubble shows "Make your secret code 🔑": two big boxes (code + "Type it again") and
- * one button; the server stores it and unlocks this iPad at once. With the keypad (passcodeKeypad: true, default)
- * the code must be 4–12 numbers so it can be typed on the keypad later; with passcodeKeypad: false, 4–64 letters or
- * numbers. With the window closed (or an older backend) the "Ask a grown-up for the code" screen stays as before.
- *
  * Security notes: no secret lives in this file. The kid types the family passcode once; the server returns a
  * signed device token (kept in localStorage) that expires. All text is rendered with textContent.
  */
@@ -178,7 +172,17 @@
   // ---------------------------------------------------------------------------------------------
   // Network
   // ---------------------------------------------------------------------------------------------
+  function mockStars() {
+    try {
+      return /(?:^|[?&])starsmock=1(?:&|$)/.test(window.location.search);
+    } catch (err) {
+      return false;
+    }
+  }
+
   function api(fn, payload, method) {
+    /* Mock mode must not call the server or replace the saved token. */
+    if (mockStars()) return Promise.resolve({ ok: false, error: "offline", mock: true, status: 0 });
     var url = cfg.functionsUrl + "/" + fn;
     var opts = { method: method || "POST", headers: {}, cache: "no-store" };
     if (opts.method === "GET") {
@@ -204,7 +208,7 @@
   // State
   // ---------------------------------------------------------------------------------------------
   var isOpen = false;
-  var mode = "idle"; // idle | checking | sleeping | nocode | setup | locked | chat
+  var mode = "idle"; // idle | checking | sleeping | nocode | locked | chat
   var messages = []; // {id, direction, text, status, created_at, local?}
   var lastId = 0;
   var pollTimer = null;
@@ -251,9 +255,7 @@
       return poll(true);
     }
     api("kid-chat-poll", null, "GET").then(function (r) {
-      if (r.ok && r.configured && r.passcode_set === false) {
-        if (r.passcode_setup_open === true) showMakeCode(); else showAskGrownUp();
-      }
+      if (r.ok && r.configured && r.passcode_set === false) showAskGrownUp();
       else if (r.ok && r.configured) showLocked();
       else showSleeping();
     });
@@ -303,123 +305,6 @@
     body.appendChild(box);
   }
 
-  // The server says no code is set: forget the token and ask the server what to show (make a code, or ask a grown-up).
-  function noPasscode() {
-    token = null;
-    save("token", null);
-    messages = []; lastId = 0;
-    mode = "idle";
-    start();
-  }
-
-  // The kid makes her own secret code (a grown-up opened the setup window; no code is set yet).
-  function showMakeCode() {
-    mode = "setup";
-    stopPoll();
-    token = null;
-    save("token", null);
-    headSub.textContent = "New secret code";
-    clearBody();
-    var digitsOnly = !!cfg.passcodeKeypad; // the keypad can only type numbers, so the code must be numbers
-    var maxLen = digitsOnly ? 12 : 64;
-    var box = el("div", "kc-lock kc-setup");
-    box.appendChild(el("div", "kc-big-emoji kc-float", "🔑"));
-    box.appendChild(el("p", "kc-center-title", "Make your secret code"));
-    box.appendChild(el("p", "kc-center-text", "Hi " + cfg.kidName + "! Make a secret code to open your chat with " + cfg.botName + "."));
-
-    function field(labelText) {
-      var wrap = el("label", "kc-setup-field");
-      wrap.appendChild(el("span", "kc-setup-label", labelText));
-      var inp = el("input", "kc-code-input kc-setup-input");
-      inp.type = "password";
-      inp.autocomplete = "off";
-      inp.setAttribute("autocapitalize", "none");
-      inp.setAttribute("autocorrect", "off");
-      inp.setAttribute("spellcheck", "false");
-      inp.maxLength = maxLen;
-      if (digitsOnly) { inp.setAttribute("inputmode", "numeric"); inp.setAttribute("pattern", "[0-9]*"); }
-      inp.addEventListener("input", function () {
-        if (digitsOnly && /\D/.test(inp.value)) inp.value = inp.value.replace(/\D/g, "");
-        err.textContent = "";
-      });
-      wrap.appendChild(inp);
-      box.appendChild(wrap);
-      return inp;
-    }
-    var first = field(digitsOnly ? "Your secret code (4 to 12 numbers)" : "Your secret code");
-    var again = field("Type it again");
-    first.addEventListener("keydown", function (e) { if (e.key === "Enter") again.focus(); });
-    again.addEventListener("keydown", function (e) { if (e.key === "Enter") submit(); });
-
-    var showBtn = button("kc-btn kc-btn-soft kc-setup-show", "👀 Show my code", null, function () {
-      var hidden = first.type === "password";
-      first.type = again.type = hidden ? "text" : "password";
-      showBtn.textContent = hidden ? "🙈 Hide my code" : "👀 Show my code";
-    });
-    box.appendChild(showBtn);
-    box.appendChild(el("p", "kc-setup-hint", "Pick something you'll remember. Tell Mommy or Daddy too!"));
-    var err = el("p", "kc-lock-error", "");
-    err.setAttribute("role", "alert");
-    box.appendChild(err);
-    var goBtn = button("kc-btn kc-btn-go kc-setup-go", "Make my code! ✨", null, submit);
-    box.appendChild(goBtn);
-    body.appendChild(box);
-
-    var submitting = false;
-    function oops(text) {
-      err.textContent = text;
-      box.classList.remove("kc-shake");
-      void box.offsetWidth;
-      box.classList.add("kc-shake");
-    }
-    function check(code) {
-      var n = Array.from ? Array.from(code).length : code.length;
-      if (digitsOnly) {
-        if (!/^\d+$/.test(code) || n < 4) return "Use at least 4 numbers for your code.";
-        if (n > 12) return "That's a lot of numbers! Use 12 or fewer.";
-        return "";
-      }
-      if (n < 4) return "Your code needs at least 4 letters or numbers.";
-      if (code.length > 64) return "That code is too long! Pick a shorter one.";
-      try {
-        if (!new RegExp("^[\\p{L}\\p{M}\\p{Nd} .,!?'_-]+$", "u").test(code)) return "Use only letters and numbers (no emoji).";
-      } catch (e) { /* very old Safari: the server checks */ }
-      return "";
-    }
-    function submit() {
-      if (submitting) return;
-      var code = first.value.trim(), code2 = again.value.trim();
-      var problem = check(code);
-      if (problem) { first.focus(); return oops(problem); }
-      if (code !== code2) { again.value = ""; again.focus(); return oops("The two codes don't match. Type it again! 🙂"); }
-      submitting = true;
-      goBtn.disabled = true;
-      box.classList.add("kc-busy");
-      api("kid-chat-send", { new_passcode: code, session_id: sessionId }).then(function (r) {
-        submitting = false;
-        goBtn.disabled = false;
-        box.classList.remove("kc-busy");
-        if (r.ok && r.token) {
-          first.value = again.value = "";
-          mode = "chat";
-          messages = []; lastId = 0;
-          renderChat();
-          poll(true);
-          showToast("🎉 Your secret code is ready! Remember it, and tell Mommy or Daddy.", 6000);
-          return;
-        }
-        if (r.error === "already_set") return showLocked(r.message || "Your secret code is already made! Type it to open the chat.");
-        if (r.error === "setup_closed") return showAskGrownUp();
-        if (r.error === "bad_passcode") return oops(r.message || "Try a different code.");
-        if (r.error === "too_many_tries") return oops("Too many tries. Wait a few minutes, or ask a grown-up.");
-        if (r.status === 0) return oops("Hmm, no internet. Try again in a moment. 📶");
-        if (r.error === "not_configured" || r.status >= 500) return showSleeping();
-        oops("Hmm, that didn't work. Try again.");
-      });
-    }
-    if (window.matchMedia && window.matchMedia("(pointer: fine)").matches) first.focus();
-  }
-
   function showLocked(message) {
     mode = "locked";
     stopPoll();
@@ -453,7 +338,7 @@
         code = "";
         if (dots) drawDots();
         if (input) input.value = "";
-        if (r.error === "no_passcode_yet") return noPasscode();
+        if (r.error === "no_passcode_yet") return showAskGrownUp();
         if (r.error === "wrong_passcode") err.textContent = "Oops! That's not it. Try again.";
         else if (r.error === "too_many_tries") err.textContent = "Too many tries. Ask a grown-up, or wait a few minutes.";
         else if (r.error === "not_configured" || r.status === 0 || r.status >= 500) return showSleeping();
@@ -666,6 +551,7 @@
     messages.push(local);
     if (textarea && textarea.value.trim() === text) { textarea.value = ""; onType(); }
     drawMessages();
+    /* game_request asks the server to charge its own price. No cost is sent. */
     var payload = { token: token, text: text };
     if (opts.game) { payload.game_request = true; if (opts.forFriend) payload.for_friend = true; }
     api("kid-chat-send", payload).then(function (r) {
@@ -697,7 +583,7 @@
 
   function handleError(r, text) {
     if (text && textarea && !textarea.value) { textarea.value = text; onType(); }
-    if (r.error === "no_passcode_yet") return noPasscode();
+    if (r.error === "no_passcode_yet") return showAskGrownUp();
     if (r.status === 401) return showLocked("Please type the secret code again.");
     if (r.error === "not_configured") return showSleeping();
     if (r.error === "slow_down") return showToast("Whoa, slow down! 🐢 Wait a little bit, then try again.");
@@ -724,7 +610,7 @@
         else if (added && !first) { unread += added; badge.textContent = String(unread); badge.hidden = false; }
         if (first && isOpen) focusInput();
       } else if (r.error === "no_passcode_yet") {
-        if (isOpen) noPasscode(); else { mode = "idle"; token = null; save("token", null); }
+        if (isOpen) showAskGrownUp(); else { mode = "idle"; token = null; save("token", null); }
         return;
       } else if (r.status === 401) {
         if (isOpen) showLocked("Please type the secret code again."); else { mode = "idle"; token = null; save("token", null); }
@@ -759,6 +645,8 @@
   }
 
   function mount() {
+    /* No address, or chat turned off in settings: do not show the bubble. */
+    if (user.chat === false || !cfg.functionsUrl || !KID) return;
     document.body.appendChild(root);
     // Returning kid with a saved token: check quietly for replies so the bubble can show a badge.
     if (token && cfg.functionsUrl && KID) { mode = "chat"; poll(true); }

@@ -11,7 +11,17 @@
     return node;
   }
 
-  if (!games.length) {
+  function allowed(game) {
+    var feats = window.KIDS_SETTINGS && window.KIDS_SETTINGS.features;
+    if (!feats) return true;
+    if (String(game.href || "").indexOf("books/") === 0 && !feats.bookClub) return false;
+    if (String(game.href || "").indexOf("homework/") === 0 && !feats.homework) return false;
+    return true;
+  }
+
+  var shown = games.filter(allowed);
+
+  if (!shown.length) {
     var soon = el("div", "game-card soon-card color-violet");
     soon.setAttribute("role", "status");
     var emoji = el("span", "game-emoji", "🎁");
@@ -26,7 +36,7 @@
     return;
   }
 
-  games.forEach(function (game, index) {
+  shown.forEach(function (game, index) {
     var color = RAINBOW.indexOf(game.color) >= 0 ? game.color : RAINBOW[index % RAINBOW.length];
     var card = el("a", "game-card color-" + color);
     card.href = game.href;
@@ -34,9 +44,15 @@
     var emoji = el("span", "game-emoji", game.emoji || "🎮");
     emoji.setAttribute("aria-hidden", "true");
 
+    var aboutText = game.about || "Tap to play!";
+    var feats = window.KIDS_SETTINGS && window.KIDS_SETTINGS.features;
+    if (feats && !feats.stars && String(game.href || "").indexOf("practice/") === 0) {
+      aboutText = "Extra questions at your level.";
+    }
+
     card.appendChild(emoji);
     card.appendChild(el("span", "game-title", game.title));
-    card.appendChild(el("span", "game-about", game.about || "Tap to play!"));
+    card.appendChild(el("span", "game-about", aboutText));
     card.appendChild(el("span", "play-pill", "▶ Play"));
     list.appendChild(card);
   });

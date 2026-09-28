@@ -14,6 +14,7 @@
   <link rel="apple-touch-icon" href="apple-touch-icon.png">
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="stylesheet" href="css/site.css">
+  <link rel="stylesheet" href="questions/ask.css">
 </head>
 <body class="home">
   <div class="sky" aria-hidden="true">
@@ -32,7 +33,8 @@
   </div>
   <main class="wrap">
     <header class="hero">
-      <p class="hello">👋 Hi, Miriam!</p>
+      <p class="starbar" id="starbar" data-needs="stars">★</p>
+      <p class="hello">👋 Hi, <span data-child-name>Miriam</span>!</p>
       <h1 class="title" aria-label="Miriam's Rainbow Arcade">
         <span class="line">
           <span class="c1">M</span><span class="c2">i</span><span class="c3">r</span><span class="c4">i</span><span class="c5">a</span><span class="c6">m</span><span class="c7">'</span><span class="c1">s</span>
@@ -40,6 +42,8 @@
         <span class="line big">Rainbow Arcade</span>
       </h1>
       <p class="tag">🌈 Tap a game to play! 🌈</p>
+      <p class="star-ask" data-needs="stars">A new game costs <span data-price="newGame">20</span> stars.</p>
+      <button type="button" class="star-game" id="new-game" data-needs="chat stars">Ask <span data-bot-name>Mirlil</span> for a new game</button>
     </header>
     <section id="game-list" class="game-list" aria-label="Games"></section>
     <ul class="parade" aria-hidden="true">
@@ -54,20 +58,20 @@
     </ul>
   </main>
   <footer class="foot">
-    <p>Made with 💜 for Miriam</p>
+    <p>Made with 💜 for <span data-child-name>Miriam</span></p>
     <details class="parent-note">
       <summary>For parents</summary>
-      <p>Brain Breaks are short learning pauses instead of ads. At the end of every level, whether Miriam finishes it or starts it over, she or Joyce answers a few questions: math, word problems, English, Russian, and Hebrew words, and the weekly Torah portion. Questions get a little harder as the game level goes up. Each child has her own level, saved on this iPad. They can switch players on the break screen.</p>
-      <p>The 💬 bubble lets Miriam chat with Mirlil, her Grok Bot. It asks for the family code once on this iPad, and only Mirlil can answer.</p>
+      <p>Brain Breaks are short learning pauses instead of ads. At the end of every level, whether <span data-child-name>Miriam</span> finishes it or starts it over, she answers a few questions. Questions get a little harder as the game level goes up. Levels are saved on this iPad. Players can switch on the break screen.</p>
+      <p data-needs="chat">The 💬 bubble lets <span data-child-name>Miriam</span> chat with <span data-bot-name>Mirlil</span>. It asks for the family code once on this iPad. Stars can be earned in Practice and spent on hints. A new game costs <span data-price="newGame">20</span> stars.</p>
+      <p>Treasure Map finds a level for the subjects that are turned on. Those levels are saved for Brain Breaks. She can quit and come back, or retake a subject anytime. It starts at the upper end of 1st grade, then adapts.</p>
+      <p data-needs="bookClub">Book Club is for a book she finished. She picks the book, then tells <span data-bot-name>Mirlil</span> about it in the chat. A long book can earn 20 stars. A short book does not.</p>
+      <p data-needs="homework">Homework is a photo of one worksheet. The check can take about a minute. It can award stars, up to <span data-price="sheet">10</span> for a sheet and <span data-price="day">20</span> homework stars a day. Hints never include the answer.</p>
     </details>
   </footer>
+  <script src="settings.js"></script>
   <script src="games.js"></script>
   <script src="js/home.js"></script>
-  <!-- Chat with Mirlil. It stays asleep until functionsUrl points at the Supabase project's Edge Functions,
-       e.g. "https://abcdefgh.supabase.co/functions/v1". No secrets go here. -->
-  <script>
-    window.KIDS_CHAT = { kid: "miriam", kidName: "Miriam", botName: "Mirlil", botEmoji: "🦄", theme: "rainbow", functionsUrl: "https://btrvclzpgilavyzmlhnz.supabase.co/functions/v1" };
-  </script>
+  <script src="stars/stars.js"></script>
   <script src="chat/chat.js" defer></script>
 </body>
 </html>

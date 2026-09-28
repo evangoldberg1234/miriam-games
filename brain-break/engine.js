@@ -58,6 +58,54 @@
     return clampLevel((Number(storedLevel) || 1) + gameNudge(gameLevel), max);
   }
 
+  var TEST_SUBJECTS = {
+    math: "math",
+    verbal: "words",
+    english: "translate",
+    hebrew: "translate",
+    russian: "translate",
+    parsha: "parsha"
+  };
+
+  function mapTestLevel(testLevel, max) {
+    var t = Math.round(Number(testLevel) || 1);
+    if (t < 1) t = 1;
+    if (t > 10) t = 10;
+    return clampLevel(Math.round(1 + (t - 1) * (max - 1) / 9), max);
+  }
+
+  function seedPlan(testLevels) {
+    var groups = { math: [], words: [], translate: [], parsha: [] };
+    var source = testLevels || {};
+    Object.keys(TEST_SUBJECTS).forEach(function (name) {
+      if (source[name] == null || source[name] === "") return;
+      var n = Number(source[name]);
+      if (isNaN(n)) return;
+      groups[TEST_SUBJECTS[name]].push(n);
+    });
+    var plan = {};
+    Object.keys(groups).forEach(function (subject) {
+      var list = groups[subject];
+      if (!list.length) return;
+      var sum = 0;
+      list.forEach(function (n) { sum += n; });
+      plan[subject] = mapTestLevel(Math.round(sum / list.length), MAX[subject]);
+    });
+    return plan;
+  }
+
+  function applySeed(kidState, plan) {
+    Object.keys(plan || {}).forEach(function (subject) {
+      if (!kidState[subject]) return;
+      kidState[subject].level = clampLevel(plan[subject], MAX[subject]);
+      kidState[subject].placed = true;
+      kidState[subject].streak = 0;
+      kidState[subject].missStreak = 0;
+      if ((kidState[subject].correctCount || 0) < 3) kidState[subject].correctCount = 3;
+    });
+    return kidState;
+  }
+
   function freshSubject(level) {
     return { level: level, streak: 0, missStreak: 0, placed: false, correctCount: 0 };
   }
@@ -469,8 +517,9 @@
 
   function generateTranslate(level, rng, dirIndex) {
     level = clampLevel(level, MAX.translate);
-    var index = ((dirIndex % DIRS.length) + DIRS.length) % DIRS.length;
-    var pair = DIRS[index];
+    var dirs = activeDirs();
+    var index = ((dirIndex % dirs.length) + dirs.length) % dirs.length;
+    var pair = dirs[index];
     var from = pair[0];
     var to = pair[1];
     var hebrew = from === "he" || to === "he";
@@ -511,7 +560,7 @@
         display: "word",
         hebrew: hebrew || hasHebrew(correct[from]) || hasHebrew(correct[to])
       },
-      nextDirIndex: (index + 1) % DIRS.length
+      nextDirIndex: (index + 1) % dirs.length
     };
   }
 
@@ -590,11 +639,41 @@
     };
   }
 
+  function settingsOn() {
+    return root.KIDS_SETTINGS && root.KIDS_SETTINGS.subjects;
+  }
+
+  function activeSubjects() {
+    if (!settingsOn()) return SUBJECTS.slice();
+    var on = root.KIDS_SETTINGS.subjects;
+    var langs = root.KIDS_SETTINGS.languages || [];
+    var list = [];
+    if (on.math !== false) list.push("math");
+    if (on.verbal !== false) list.push("words");
+    if (langs.length >= 2 && (on.english !== false || on.hebrew !== false || on.russian !== false)) list.push("translate");
+    if (on.parsha !== false) list.push("parsha");
+    if (!list.length) return SUBJECTS.slice();
+    return list;
+  }
+
+  function activeDirs() {
+    if (!settingsOn()) return DIRS.slice();
+    var langs = root.KIDS_SETTINGS.languages || [];
+    if (!langs.length) return DIRS.slice();
+    var list = DIRS.filter(function (pair) {
+      return langs.indexOf(pair[0]) !== -1 && langs.indexOf(pair[1]) !== -1;
+    });
+    if (!list.length) return DIRS.slice();
+    return list;
+  }
+
   function subjectsForBreak(rotIndex) {
-    var start = ((rotIndex % SUBJECTS.length) + SUBJECTS.length) % SUBJECTS.length;
+    var pool = activeSubjects();
+    var start = ((rotIndex % pool.length) + pool.length) % pool.length;
     var subjects = [];
-    for (var i = 0; i < 3; i++) subjects.push(SUBJECTS[(start + i) % SUBJECTS.length]);
-    return { subjects: subjects, nextRot: (start + 3) % SUBJECTS.length };
+    var count = Math.min(3, pool.length);
+    for (var i = 0; i < count; i++) subjects.push(pool[(start + i) % pool.length]);
+    return { subjects: subjects, nextRot: (start + count) % pool.length };
   }
 
   function normalizeTitle(title) {
@@ -684,7 +763,10 @@
     readingFromHebcalItems: readingFromHebcalItems,
     clampLevel: clampLevel,
     gameNudge: gameNudge,
-    effectiveLevel: effectiveLevel
+    effectiveLevel: effectiveLevel,
+    mapTestLevel: mapTestLevel,
+    seedPlan: seedPlan,
+    applySeed: applySeed
   };
 
   if (typeof module !== "undefined" && module.exports) {

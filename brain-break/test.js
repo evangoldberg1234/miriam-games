@@ -271,4 +271,22 @@ assert.strictEqual(pageSource.indexOf("betweenLevels"), -1);
 assert.strictEqual(pageSource.indexOf(".attach"), -1);
 assert.strictEqual(pageSource.indexOf("90000"), -1);
 
+assert.strictEqual(engine.mapTestLevel(1, 12), 1);
+assert.strictEqual(engine.mapTestLevel(10, 12), 12);
+assert.strictEqual(engine.mapTestLevel(5, 12), 6);
+assert.strictEqual(engine.mapTestLevel(10, 8), 8);
+assert.strictEqual(engine.mapTestLevel(5, 4), 2);
+assert.strictEqual(engine.mapTestLevel(5, 3), 2);
+var plan = engine.seedPlan({ math: 10, verbal: 1, hebrew: 10, russian: 10, english: 4, parsha: 5 });
+assert.strictEqual(plan.math, 12);
+assert.strictEqual(plan.words, 1);
+assert.strictEqual(plan.translate, engine.mapTestLevel(8, 4));
+assert.strictEqual(plan.parsha, 2);
+var seeded = engine.freshKid("miriam");
+engine.applySeed(seeded, { math: 7 });
+assert.strictEqual(seeded.math.level, 7);
+assert.strictEqual(seeded.math.placed, true);
+assert.strictEqual(seeded.words.level, 1);
+assert.ok(pageSource.indexOf("seedFromLevelTest") !== -1);
+
 console.log("Brain Break checks passed (" + bank.length + " questions, " + schedule.length + " Shabbats, " + vocab.length + " words).");
