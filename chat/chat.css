@@ -252,20 +252,6 @@
   font-size: 30px;
   text-align: center;
 }
-/* "Make your secret code" (setup window open, no code yet): big boxes and buttons for small fingers on an iPad. */
-.kc-setup { overflow-y: auto; -webkit-overflow-scrolling: touch; padding-bottom: 24px; }
-.kc-setup .kc-big-emoji { font-size: 44px; }
-.kc-setup .kc-center-title { font-size: 30px; margin-top: 0; }
-.kc-setup .kc-center-text { font-size: 20px; }
-.kc-setup .kc-lock-error { min-height: 26px; }
-.kc-setup-field { display: flex; flex-direction: column; align-items: center; width: min(380px, 100%); margin-top: 4px; }
-.kc-setup-label { font-size: 21px; font-weight: 800; }
-.kc-setup-input { width: 100%; margin: 4px 0 6px; font-size: 32px; letter-spacing: 2px; }
-.kc-setup-input:focus { outline: none; border-color: var(--kc-accent); box-shadow: 0 0 0 4px rgba(90, 76, 255, 0.25); }
-.kc-setup-hint { margin: 6px 0 0; font-size: 20px; line-height: 1.3; font-weight: 700; }
-.kc-btn-soft { min-height: 56px; background: #fff; color: var(--kc-ink); font-size: 21px; padding: 8px 22px; }
-.kc-setup-go { min-height: 72px; width: min(380px, 100%); margin-top: 4px; background: #2ec45a; font-size: 28px; }
-.kc-setup-go:disabled { opacity: 0.6; }
 .kc-busy { opacity: 0.6; pointer-events: none; }
 .kc-shake { animation: kc-shake 0.4s; }
 

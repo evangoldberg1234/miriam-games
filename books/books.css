@@ -1,0 +1,208 @@
+/* Book Club. Colors come from the host site's variables. */
+.home-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 56px;
+  padding: 8px 14px;
+  border-radius: 18px;
+  border: 3px solid var(--line, #1d4e96);
+  background: #fff;
+  color: var(--ink, #16356b);
+  text-decoration: none;
+  font-weight: 800;
+}
+
+.game-name {
+  margin: 0;
+  color: #fff;
+  font-size: clamp(26px, 4vw, 40px);
+  font-weight: 800;
+  text-shadow: 0 3px 0 #1d4e96;
+  text-align: center;
+}
+
+.books-app {
+  position: relative;
+  z-index: 1;
+  width: min(720px, 100%);
+  margin: 0 auto;
+  padding: 8px 16px 140px;
+}
+
+.book-icon {
+  margin: 0;
+  font-size: 72px;
+  line-height: 1;
+  text-align: center;
+}
+
+.book-title {
+  margin: 8px 0 6px;
+  color: #fff;
+  font-size: clamp(36px, 6vw, 52px);
+  line-height: 1.05;
+  text-shadow: 0 4px 0 #1d4e96;
+}
+
+.book-lead,
+.book-note {
+  margin: 0 0 14px;
+  color: var(--ink, #16356b);
+  background: #fff;
+  border-radius: 18px;
+  padding: 12px 14px;
+  font-size: 22px;
+  line-height: 1.35;
+}
+
+.book-form {
+  display: grid;
+  gap: 8px;
+}
+
+.book-label {
+  color: #fff;
+  font-size: 20px;
+  font-weight: 800;
+  text-shadow: 0 2px 0 rgba(29, 78, 150, 0.35);
+}
+
+.book-input,
+.book-next,
+.book-side,
+.book-card {
+  min-height: 56px;
+  border-radius: 18px;
+  font: inherit;
+  font-size: 22px;
+}
+
+.book-input {
+  width: 100%;
+  padding: 12px 14px;
+  border: 3px solid var(--line, #1d4e96);
+  color: var(--ink, #16356b);
+  background: #fff;
+}
+
+.book-next,
+.book-side,
+.book-card {
+  border: 3px solid var(--line, #1d4e96);
+  text-align: left;
+}
+
+.book-next {
+  margin-top: 8px;
+  background: var(--sky-deep, #2b86f0);
+  color: #fff;
+  font-weight: 800;
+  text-align: center;
+  box-shadow: 0 4px 0 #1d4e96;
+}
+
+.book-side {
+  margin-top: 10px;
+  width: 100%;
+  background: #fff;
+  color: var(--ink, #16356b);
+  font-weight: 800;
+  text-align: center;
+}
+
+.book-list {
+  display: grid;
+  gap: 12px;
+}
+
+.book-card {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  width: 100%;
+  padding: 10px;
+  background: #fff;
+  color: var(--ink, #16356b);
+  box-shadow: 0 4px 0 #1d4e96;
+}
+
+.book-card-static {
+  cursor: default;
+}
+
+.book-cover {
+  position: relative;
+  width: 112px;
+  height: 148px;
+  flex: 0 0 auto;
+  border-radius: 16px;
+  overflow: hidden;
+  background: #d7ecff;
+  border: 3px solid var(--line, #1d4e96);
+}
+
+.book-cover img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.book-placeholder {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  font-size: 48px;
+}
+
+.book-card-text {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+}
+
+.book-name {
+  font-size: 26px;
+  font-weight: 800;
+  line-height: 1.15;
+}
+
+.book-author,
+.book-pages,
+.book-date {
+  font-size: 18px;
+}
+
+.book-status,
+.book-stars {
+  font-size: 20px;
+  font-weight: 800;
+  color: var(--sky-deep, #2b86f0);
+}
+
+.kc-fab.book-pulse {
+  animation: book-pulse 0.7s ease-in-out 3;
+}
+
+@keyframes book-pulse {
+  50% { transform: scale(1.12); }
+}
+
+.book-aside {
+  margin: 0 0 14px;
+  color: var(--ink, #16356b);
+  background: #fff8d6;
+  border-radius: 18px;
+  padding: 12px 14px;
+  font-size: 20px;
+  font-weight: 800;
+}
+
+@media (orientation: landscape) and (min-width: 900px) {
+  .book-list {
+    grid-template-columns: 1fr 1fr;
+  }
+}

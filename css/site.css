@@ -37,7 +37,8 @@ body {
     env(safe-area-inset-left);
 }
 
-body.home {
+body.home,
+body.game {
   position: relative;
   overflow-x: hidden;
 }
@@ -359,4 +360,26 @@ a.game-card:active {
 .color-yellow .play-pill {
   color: var(--ink);
   text-shadow: none;
+}
+
+/* Quest pages share the rainbow sky. Keep their clouds up high so they
+   do not sit on top of the questions. The home page clouds stay low. */
+body.game .cloud-a,
+body.game .cloud-b {
+  top: 36px;
+}
+
+body.game .cloud-c {
+  top: 70px;
+}
+
+/* The chat widget is appended to the page. Keep it above the rainbow,
+   the clouds, and the footer. */
+.kc-root {
+  position: relative;
+  z-index: 50;
+}
+
+.kc-panel {
+  opacity: 1 !important;
 }

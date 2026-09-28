@@ -1,0 +1,241 @@
+/* Homework photo check. Colors come from the host site. Tap targets are at least 60px. */
+.home-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 60px;
+  padding: 8px 14px;
+  border-radius: 18px;
+  border: 3px solid var(--line, #1d4e96);
+  background: #fff;
+  color: var(--ink, #16356b);
+  text-decoration: none;
+  font-weight: 800;
+}
+
+.game-name {
+  margin: 0;
+  color: #fff;
+  font-size: clamp(26px, 4vw, 40px);
+  font-weight: 800;
+  text-shadow: 0 3px 0 #1d4e96;
+  text-align: center;
+}
+
+.hw-app {
+  position: relative;
+  z-index: 1;
+  width: min(720px, 100%);
+  margin: 0 auto;
+  padding: 8px 16px 150px;
+}
+
+.hw-title {
+  margin: 8px 0 10px;
+  color: #fff;
+  font-size: clamp(32px, 6vw, 48px);
+  line-height: 1.15;
+  text-shadow: 0 4px 0 #1d4e96;
+}
+
+.hw-lead,
+.hw-note {
+  margin: 0 0 14px;
+  color: var(--ink, #16356b);
+  background: #fff;
+  border: 3px solid var(--line, #1d4e96);
+  border-radius: 18px;
+  padding: 14px 16px;
+  font-size: 22px;
+  line-height: 1.35;
+}
+
+.hw-shoot,
+.hw-hear {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-height: 60px;
+  margin: 0 0 12px;
+  padding: 14px 18px;
+  border: 3px solid var(--line, #1d4e96);
+  border-radius: 22px;
+  background: #fff;
+  color: var(--ink, #16356b);
+  font: inherit;
+  font-size: 24px;
+  font-weight: 800;
+  line-height: 1.2;
+  text-align: center;
+  box-shadow: 0 4px 0 #1d4e96;
+  cursor: pointer;
+}
+
+.hw-shoot {
+  min-height: 88px;
+  background: var(--sun, #ffe14a);
+  position: relative;
+}
+
+.hw-shoot:active,
+.hw-hear:active {
+  transform: translateY(2px);
+  box-shadow: 0 2px 0 #1d4e96;
+}
+
+.hw-file {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  border: 0;
+}
+
+.hw-check-face {
+  margin: 18px 0 0;
+  font-size: 72px;
+  text-align: center;
+  animation: hw-bob 0.9s ease-in-out infinite;
+}
+
+@keyframes hw-bob {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-12px); }
+}
+
+.hw-list {
+  list-style: none;
+  margin: 0 0 16px;
+  padding: 0;
+  display: grid;
+  gap: 10px;
+}
+
+.hw-problem {
+  display: grid;
+  grid-template-columns: auto auto 1fr;
+  gap: 8px 10px;
+  align-items: center;
+  padding: 12px;
+  border-radius: 18px;
+  border: 3px solid var(--line, #1d4e96);
+  background: #fff;
+}
+
+.hw-yes {
+  background: #e5f8ea;
+}
+
+.hw-soft {
+  background: #fff6dc;
+}
+
+.hw-n,
+.hw-mark {
+  font-size: 28px;
+  font-weight: 800;
+}
+
+.hw-hint {
+  margin: 0;
+  grid-column: 1 / -1;
+  font-size: 22px;
+}
+
+.hw-problem .hw-hear {
+  grid-column: 1 / -1;
+}
+
+.hw-fly {
+  position: fixed;
+  z-index: 30;
+  font-size: 52px;
+  line-height: 1;
+  pointer-events: none;
+  filter: drop-shadow(0 0 8px #fff) drop-shadow(0 3px 0 #1d4e96);
+  transition: transform 0.7s ease-in;
+}
+
+.hw-spark {
+  position: fixed;
+  z-index: 30;
+  width: 12px;
+  height: 12px;
+  margin: -6px 0 0 -6px;
+  border-radius: 50%;
+  background: var(--sun, #ffe14a);
+  box-shadow: 0 0 0 3px #fff;
+  pointer-events: none;
+  animation: hw-spark 0.5s ease-out forwards;
+}
+
+@keyframes hw-spark {
+  to {
+    transform: translate(var(--dx), var(--dy)) scale(0.2);
+    opacity: 0;
+  }
+}
+
+.hw-line {
+  margin: 0 0 14px;
+  color: #fff;
+  font-size: 28px;
+  font-weight: 800;
+  text-align: center;
+  text-shadow: 0 3px 0 #1d4e96;
+  min-height: 1.4em;
+}
+
+.hw-home {
+  text-decoration: none;
+}
+
+.hw-history {
+  margin-top: 8px;
+}
+
+.hw-history-title {
+  margin: 8px 0 10px;
+  color: #fff;
+  font-size: 28px;
+  text-shadow: 0 3px 0 #1d4e96;
+}
+
+.hw-history-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 10px;
+}
+
+.hw-history-item {
+  display: grid;
+  grid-template-columns: auto 1fr auto auto;
+  gap: 10px;
+  align-items: center;
+  min-height: 60px;
+  padding: 10px 14px;
+  border-radius: 18px;
+  border: 3px solid var(--line, #1d4e96);
+  background: #fff;
+  color: var(--ink, #16356b);
+  font-weight: 800;
+}
+
+.hw-history-icon {
+  font-size: 28px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hw-check-face,
+  .hw-fly,
+  .hw-spark {
+    animation: none;
+    transition: none;
+  }
+}
