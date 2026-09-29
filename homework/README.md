@@ -8,7 +8,7 @@ The page needs a `#starbar` element. Stars fly into it. Load `stars/stars.js` be
 
 ## Photo
 
-The long side is at most 1600 pixels. The JPEG stays under 2MB. It is drawn through `createImageBitmap` (or an `Image`) so EXIF rotation is kept. `image_base64` is raw base64, without a `data:` prefix.
+The long side is at most 1600 pixels and the picture is never enlarged. It is drawn on a white background through `createImageBitmap` with EXIF orientation (or an `Image`, which is also how Safari decodes a HEIC) so the photo is not sideways, then saved as a JPEG at quality 0.82. If that file is still over 1.5MB, it is tried again at quality 0.7 and then with a 1280 pixel long side. If resizing fails, the original file is uploaded instead. A photo the browser cannot decode shows "I couldn't use that photo. Try again." `image_base64` is raw base64, without a `data:` prefix.
 
 ## Calls
 
