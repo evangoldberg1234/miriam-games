@@ -11,6 +11,7 @@
   --kc-panel-bg: #f3f8ff;
   --kc-font: "Chalkboard SE", "Comic Sans MS", "Marker Felt", "Trebuchet MS", "Segoe Print", sans-serif;
   --kc-vh: 100vh;
+  --kc-vh: 100dvh;
   font-family: var(--kc-font);
   color: var(--kc-ink);
   -webkit-text-size-adjust: 100%;
@@ -430,10 +431,19 @@
   .kc-panel {
     right: 0; bottom: 0; left: 0;
     width: 100vw;
+    height: 100vh;
+    height: 100dvh;
     height: var(--kc-vh);
+    max-height: var(--kc-vh);
     border-radius: 0;
     border-width: 0;
     box-shadow: none;
+  }
+  .kc-head {
+    padding-top: calc(14px + env(safe-area-inset-top));
+  }
+  .kc-theme-rainbow .kc-head {
+    padding-top: calc(24px + env(safe-area-inset-top));
   }
   .kc-fab-label { display: none; }
   .kc-fab { padding: 10px; }

@@ -1,0 +1,214 @@
+/* Shared viewport fit. Loaded last so it wins over page styles.
+   The page is one screen. Content scrolls. Bottom bars stay on screen.
+   Joyce-only layout (spa, puzzles, ice cream, docks) is left out.
+   Rainbow Cats has no body.home or body.game class, so that page
+   scrolls inside the same viewport height. */
+
+html {
+  height: 100vh;
+  height: 100dvh;
+  height: var(--app-h, 100dvh);
+  overflow: hidden;
+}
+
+body {
+  min-height: 100vh;
+  min-height: 100dvh;
+  min-height: var(--app-h, 100dvh);
+}
+
+body.home,
+body.game {
+  height: 100vh;
+  height: 100dvh;
+  height: var(--app-h, 100dvh);
+  max-height: 100vh;
+  max-height: 100dvh;
+  max-height: var(--app-h, 100dvh);
+  min-height: 0;
+  overflow: hidden;
+}
+
+body.home {
+  overflow: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+body:not(.home):not(.game) {
+  height: 100vh;
+  height: 100dvh;
+  height: var(--app-h, 100dvh);
+  max-height: var(--app-h, 100dvh);
+  min-height: 0;
+  overflow: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+body.game {
+  display: flex;
+  flex-direction: column;
+}
+
+body.game > .quest-top {
+  flex: 0 0 auto;
+}
+
+body.game > .quest-app,
+body.game > .books-app,
+body.game > .hw-app {
+  flex: 1 1 auto;
+  min-height: 0;
+  width: min(1100px, 100%);
+  overflow: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+}
+
+/* Bottom bars. The page padding already includes the safe area.
+   The bar repeats the inset so a sticky bar cannot slide under the home indicator. */
+.quest-app > .q-next:last-child,
+.books-app > .book-next:last-child,
+.hw-app > .hw-shoot {
+  padding-bottom: max(8px, env(safe-area-inset-bottom));
+}
+
+.quest-app > .q-next:last-child {
+  position: sticky;
+  bottom: 0;
+  z-index: 4;
+}
+
+/* Question screens: the card scrolls, the buttons stay underneath. */
+.quest-app:has(.q-card) {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.quest-app:has(.q-card) > .q-card {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.quest-app:has(.q-card) > .q-next,
+.quest-app:has(.q-card) > .quest-side {
+  flex: 0 0 auto;
+  position: static;
+}
+
+/* Floors for controls that were under 48px. Do not lower controls
+   that already use a taller min-height. */
+.starbar,
+.parent-note summary,
+.play-pill {
+  min-height: 48px;
+}
+
+.play-pill {
+  display: inline-flex;
+  align-items: center;
+  box-sizing: border-box;
+}
+
+.q-choice,
+.q-next,
+.home-link {
+  min-width: 48px;
+}
+
+/* Narrow cover screen and phones. */
+@media (max-width: 520px) {
+  .wrap {
+    padding: 12px 12px 8px;
+  }
+
+  body.home h1 {
+    font-size: clamp(40px, 12vw, 64px);
+  }
+
+  .game-card {
+    flex-basis: 100%;
+    min-height: 0;
+    grid-template-columns: 72px 1fr;
+    gap: 2px 10px;
+    padding: 10px 12px;
+    border-radius: 24px;
+  }
+
+  .game-emoji {
+    width: 64px;
+    height: 64px;
+    font-size: 36px;
+  }
+
+  .game-title {
+    font-size: clamp(24px, 7vw, 32px);
+  }
+
+  .game-about {
+    font-size: 16px;
+  }
+
+  .parade {
+    margin: 12px 0 4px;
+    font-size: 28px;
+  }
+
+  .foot {
+    padding-bottom: calc(96px + env(safe-area-inset-bottom));
+  }
+
+  .quest-top {
+    gap: 6px;
+    padding: 8px 10px 0;
+  }
+
+  .quest-top .home-link,
+  .quest-top .starbar {
+    min-height: 48px;
+    padding: 4px 10px;
+    font-size: 16px;
+  }
+
+  .game-name {
+    font-size: clamp(20px, 5vw, 28px);
+  }
+}
+
+.bb-next {
+  position: sticky;
+  bottom: 0;
+  z-index: 2;
+}
+
+/* Brain Break sheets stay inside the visible height. */
+.bb-overlay {
+  top: 0;
+  right: 0;
+  bottom: auto;
+  left: 0;
+  height: 100vh;
+  height: 100dvh;
+  height: var(--app-h, 100dvh);
+  max-height: var(--app-h, 100dvh);
+  padding-bottom: max(16px, env(safe-area-inset-bottom));
+}
+
+/* Chat bubble: keep the open panel inside the visible height.
+   chat.js also writes --kc-vh in pixels on resize. */
+.kc-root {
+  --kc-vh: 100vh;
+  --kc-vh: 100dvh;
+  --kc-vh: var(--app-h, 100dvh);
+}
+
+@media (max-width: 560px) {
+  .kc-panel {
+    height: 100vh;
+    height: 100dvh;
+    height: var(--kc-vh);
+    max-height: var(--kc-vh);
+  }
+}
