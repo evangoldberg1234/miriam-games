@@ -637,11 +637,18 @@
     if (document.visibilityState === "visible" && mode === "chat") schedulePoll(0);
   });
 
-  // Keep the panel above the iPad keyboard.
+  // Keep the panel inside the visible screen: keyboard, rotation, and fold.
+  var fit = function () {
+    var h = window.innerHeight;
+    if (window.visualViewport && window.visualViewport.height) h = window.visualViewport.height;
+    root.style.setProperty("--kc-vh", Math.round(h) + "px");
+  };
+  fit();
+  window.addEventListener("resize", fit);
+  window.addEventListener("orientationchange", fit);
   if (window.visualViewport) {
-    var fit = function () { root.style.setProperty("--kc-vh", window.visualViewport.height + "px"); };
     window.visualViewport.addEventListener("resize", fit);
-    fit();
+    window.visualViewport.addEventListener("scroll", fit);
   }
 
   function mount() {
