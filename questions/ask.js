@@ -1,6 +1,9 @@
 /* Draws one multiple-choice question. Hebrew is RTL. The speaker
    button appears only when the device has a voice for that language. */
-(function () {
+(function (root) {
+  var shuffle = root.QShuffle;
+  if (!shuffle && typeof require === "function") shuffle = require("./shuffle.js");
+
   function hasHebrew(text) {
     return /[\u0590-\u05FF]/.test(text || "");
   }
@@ -45,18 +48,6 @@
       el.classList.add("q-ru");
       el.lang = "ru";
     }
-  }
-
-  function shuffle(list) {
-    var arr = list.slice();
-    var i;
-    for (i = arr.length - 1; i > 0; i--) {
-      var j = Math.floor(Math.random() * (i + 1));
-      var tmp = arr[i];
-      arr[i] = arr[j];
-      arr[j] = tmp;
-    }
-    return arr;
   }
 
   function render(parent, question, onChoice) {
@@ -119,5 +110,6 @@
     else note.textContent = "Almost! " + question.explain;
   }
 
-  window.Ask = { render: render, lock: lock, voiceFor: voiceFor };
-})();
+  root.Ask = { render: render, lock: lock, voiceFor: voiceFor, _shuffle: shuffle };
+  if (typeof module !== "undefined" && module.exports) module.exports = root.Ask;
+})(typeof globalThis !== "undefined" ? globalThis : this);
