@@ -11,7 +11,7 @@
   }
 
   function empty() {
-    return { results: {}, practice: {}, progress: null };
+    return { results: {}, practice: {}, progress: null, recent: {} };
   }
 
   function load() {
@@ -22,6 +22,7 @@
       data.results = saved.results || {};
       data.practice = saved.practice || {};
       data.progress = saved.progress || null;
+      data.recent = saved.recent && typeof saved.recent === "object" ? saved.recent : {};
       return data;
     } catch (err) {
       return data;

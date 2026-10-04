@@ -116,7 +116,15 @@
 
   function avoidMap() {
     var map = {};
-    (data.progress.asked || []).forEach(function (id) { map[id] = true; });
+    var asked = data.progress.asked || [];
+    var i;
+    for (i = 0; i < asked.length; i++) map[asked[i]] = true;
+    if (!asked.length) return map;
+    if (data.progress.subject === "math" && asked.length >= 2) {
+      map._last = [asked[asked.length - 2], asked[asked.length - 1]];
+    } else {
+      map._last = [asked[asked.length - 1]];
+    }
     return map;
   }
 

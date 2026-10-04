@@ -46,10 +46,22 @@
     nextQuestion();
   }
 
+  function ringFor(id) {
+    if (!data.recent || typeof data.recent !== "object") data.recent = {};
+    if (!Array.isArray(data.recent[id])) data.recent[id] = [];
+    return data.recent[id];
+  }
+
   function nextQuestion() {
-    var avoid = {};
+    var ring = ringFor(subject);
+    var limit = window.QuestionBank.recentLimit(subject, level);
+    var avoid = window.QuestionBank.avoidFromRecent(ring, limit);
     current = window.QuestionBank.pick(subject, level, avoid, Math.random);
     busy = false;
+    if (current) {
+      data.recent[subject] = window.QuestionBank.rememberRecent(ring, current);
+      window.LevelStore.save(data);
+    }
     renderQuestion();
   }
 

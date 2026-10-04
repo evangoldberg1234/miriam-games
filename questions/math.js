@@ -1,6 +1,9 @@
 /* Procedural math, levels 1–10. The arithmetic is stored beside the
    prompt so a checker can recompute the answer. No DOM. */
 (function (root) {
+  var shuffle = root.QShuffle;
+  if (!shuffle && typeof require === "function") shuffle = require("./shuffle.js");
+
   function randInt(rng, min, max) {
     return min + Math.floor(rng() * (max - min + 1));
   }
@@ -133,25 +136,56 @@
     return { spec: spec, prompt: prompt, explain: explain };
   }
 
+  function mathId(level, prompt) {
+    return "math-" + level + "-" + String(prompt).replace(/\s+/g, "");
+  }
+
+  /* Avoid matches either the prompt or the id. _last is the question
+     just asked, used only when every random try hits the avoid list. */
+  function blocked(avoid, prompt, id) {
+    if (!avoid) return false;
+    if (prompt && avoid[prompt] === true) return true;
+    if (id && avoid[id] === true) return true;
+    return false;
+  }
+
+  function isPrevious(avoid, prompt, id) {
+    var last = avoid && avoid._last;
+    if (!last) return false;
+    var i;
+    for (i = 0; i < last.length; i++) {
+      if (last[i] && (last[i] === prompt || last[i] === id)) return true;
+    }
+    return false;
+  }
+
   function generateMath(level, rng, avoid) {
     level = Math.round(Number(level) || 1);
     if (level < 1) level = 1;
     if (level > 10) level = 10;
     avoid = avoid || {};
+    rng = rng || Math.random;
     var built = null;
+    var spare = null;
     var tries = 0;
-    while (tries < 30) {
+    while (tries < 80) {
       tries += 1;
-      built = specFor(level, rng);
-      if (!avoid[built.prompt]) break;
+      var candidate = specFor(level, rng);
+      var id = mathId(level, candidate.prompt);
+      if (!blocked(avoid, candidate.prompt, id)) {
+        built = candidate;
+        break;
+      }
+      if (!isPrevious(avoid, candidate.prompt, id)) spare = candidate;
     }
+    if (!built) built = spare || specFor(level, rng);
     var answer = solve(built.spec);
     return {
-      id: "math-" + level + "-" + built.prompt.replace(/\s+/g, ""),
+      id: mathId(level, built.prompt),
       subject: "math",
       level: level,
       prompt: built.prompt,
-      choices: choicesFor(rng, answer),
+      choices: shuffle(choicesFor(rng, answer), rng),
       answer: String(answer),
       explain: built.explain,
       spec: built.spec,
